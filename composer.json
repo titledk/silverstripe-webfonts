@@ -12,7 +12,6 @@
 		"issues": "https://github.com/titledk/silverstripe-webfonts/issues"
 	},
 	"require": {
-		"silverstripe/cms": "~3.1",
 		"silverstripe/framework": "~3.1"
 	},
 	"extra": {
