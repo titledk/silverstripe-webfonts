@@ -1,0 +1,21 @@
+{
+	"name": "titledk/silverstripe-webfonts",
+	"description": "Utility/helper for working with web fonts",
+	"type": "silverstripe-module",
+	"homepage": "https://github.com/titledk/silverstripe-webfonts",
+	"keywords": ["silverstripe", "typography", "fonts", "webfonts"],
+	"license": "MIT",
+	"authors": [
+		{"name": "Anselm Christophersen","email": "ac@anselm.dk"}
+	],
+	"support": {
+		"issues": "https://github.com/titledk/silverstripe-webfonts/issues"
+	},
+	"require": {
+		"silverstripe/cms": "~3.1",
+		"silverstripe/framework": "~3.1"
+	},
+	"extra": {
+		"installer-name": "webfonts"
+	}
+}

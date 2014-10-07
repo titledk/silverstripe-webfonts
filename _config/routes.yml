@@ -1,0 +1,7 @@
+---
+Name: webfontsroutes
+---
+Director:
+  rules:
+    'typography//$Action/$ID/$OtherID': 'TypographyUtility_Controller'
+
