@@ -109,7 +109,8 @@ class WebfontsUtility extends Object {
 	
 	
 	/**
-	 * Setting the html editor config to conform with this utility
+	 * Setting font and font size dropdown
+	 * Font dropdown is populated with configured fonts
 	 * This should be called from _config.php
 	 * Unfortunately this means that it's called on all page requests - TODO: this could be alterated with a proper if statement
 	 * 
@@ -130,14 +131,6 @@ class WebfontsUtility extends Object {
 		
 		//HtmlEditorConfig::get("cms")->setButtonsForLine(3, "fontselect,fontsizeselect");
 		HtmlEditorConfig::get("cms")->addButtonsToLine(3, "|,fontselect,fontsizeselect");
-		
-		//Altering styles dropdown
-		//It looks like we won't need the styles dropdown in this project
-		HtmlEditorConfig::get('cms')->removeButtons('styleselect');
-		//		HtmlEditorConfig::get('cms')->setOption(
-		//			'theme_advanced_styles', 
-		//			'Red text=red;Blue text=blue;Green text=green;No style=default;'
-		//		);
 		
 		//Font dropdown
 		//notes: http://maxfoundry.com/blog/how-to-add-google-web-fonts-to-your-tinymce-editor-in-wordpress/
@@ -160,14 +153,6 @@ class WebfontsUtility extends Object {
 		HtmlEditorConfig::get('cms')->setOption(
 			'theme_advanced_fonts', 
 			$dropdownList
-			//'Default=;Rambla=Rambla, sans-serif;Dosis=Dosis, sans-serif;Noto Serif=Noto Serif, serif;Exo=Exo, sans-serif;Merriweather=Merriweather, serif;Merriweather Sans=Merriweather Sans, sans-serif;' .
-			//'Gabriela=Gabriela, serif;Titillium=Titillium Web, sans-serif;'
-		);
-
-		// add a button to remove formatting
-		HtmlEditorConfig::get('cms')->insertButtonsBefore(
-			'styleselect',
-			'removeformat'
 		);
 
 		//Adding google fonts to the CSS that's rendered in tinyMCE
@@ -179,54 +164,12 @@ class WebfontsUtility extends Object {
 		HtmlEditorConfig::get('cms')->setOption(
 			'content_css', 
 			//TypographyUtility::GoogleFontRequirements_string() . ',' . HtmlEditorConfig::get('cms')->getOption('content_css')
-			 "$googleFonts, /typography/localfonts.css, themes/$theme/css/editor.css" 
+			 "$googleFonts, /webfonts/localfonts.css, themes/$theme/css/editor.css" 
 		);		
 		
 	}
 	
-	/**
-	 * Basic html editor config
-	 * See https://stojg.se/blog/2013-03-29-customize-tinymce-for-silverstripe-cms
-	 * 
-	 */
-	public static function set_basic_html_editor_config(){
-		//disabled for now, see set_html_editor_configs
-//		HtmlEditorConfig::get("basic")->setOptions(array(
-//				"friendly_name" => "basic editor",
-//				"priority" => 0,
-//				"mode" => "none",
-//				"editor_selector" => "htmleditor",
-//				"auto_resize" => true,
-//				"theme" => "advanced",
-//				"skin" => "default",
-//				// Remove the bottom status bar
-//				"theme_advanced_statusbar_location" => "none"
-//		));
-//		// Clear the default buttons
-//		HtmlEditorConfig::get("basic")->setButtonsForLine(1, array());
-//		HtmlEditorConfig::get("basic")->setButtonsForLine(2, array());
-//		HtmlEditorConfig::get("basic")->setButtonsForLine(3, array());
-//		// Add the buttons you would like to add, see http://www.tinymce.com/wiki.php/buttons/controls for a comprehensive list 
-//		HtmlEditorConfig::get("basic")->setButtonsForLine(1, "bold", "italic");		
-	}
 
-	/**
-	 * Setting all html editor configs
-	 */
-	public static function set_html_editor_configs(){
-		WebfontsUtility::set_html_editor_config();
-		//TypographyUtility::set_basic_html_editor_config();
-		
-		//we're also using a module to accomplish this (silverstripe-customhtmleditorfield)
-		//see https://github.com/nathancox/silverstripe-customhtmleditorfield/wiki
-		$basicConfig = CustomHtmlEditorConfig::copy('basic', 'cms');
-		$basicConfig->setOption('friendly_name', 'Basic');
-		$basicConfig->setButtonsForLine(2, array());
-		$basicConfig->setButtonsForLine(3, array());
-	}
-
-	
-	
 }
 
 
@@ -236,7 +179,7 @@ class WebfontsUtility extends Object {
 class WebfontsUtility_LeftAndMainExtension extends LeftAndMainExtension {
 	
 	public function init() {
-		//Even though tiymce is laoding the fonts through configruation set in {TypographyUtility::set_html_editor_config()},
+		//Even though tiymce is laoding the fonts through configuration set in {WebfontsUtility::set_html_editor_config()},
 		//they also need to be loaded in the CMS to show proper fonts in the dropdowns - as tinyMCE is loaded in an iframe
 		WebfontsUtility::GoogleFontRequirements();
 		WebfontsUtility::LocalFontRequirements();
@@ -246,9 +189,13 @@ class WebfontsUtility_LeftAndMainExtension extends LeftAndMainExtension {
 
 
 /**
- * Note (7th october 2014):
- * I'm not so sure this is needed anymore - as it's taken care of 
- * via 
+ * These urls are available under webfonts, 
+ * e.g. /webfonts/localfonts.css
+ * 
+ * TODO
+ * Cache these under assets instead, this way there will be no more need
+ * to have all fonts inline in the frontend, and they could even be built through the requirements
+ * system
  */
 class WebfontsUtility_Controller extends Controller {
 
