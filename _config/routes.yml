@@ -3,5 +3,5 @@ Name: webfontsroutes
 ---
 Director:
   rules:
-    'typography//$Action/$ID/$OtherID': 'TypographyUtility_Controller'
+    'typography//$Action/$ID/$OtherID': 'WebfontsUtility_Controller'
 

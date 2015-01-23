@@ -12,8 +12,8 @@ _By default the module expects your fonts to be inside of a `fonts` directory in
     LeftAndMain:
       extensions:
        #only needed when needing this in the backend
-        - TypographyUtility_LeftAndMainExtension
-    TypographyUtility:
+        - WebfontsUtility_LeftAndMainExtension
+    WebfontsUtility:
       google_fonts:
         'Devonshire':
         'Bigelow+Rules':
@@ -47,12 +47,12 @@ _By default the module expects your fonts to be inside of a `fonts` directory in
 
 The requirements can be loaded inside of your `init` method like this:
 
-	TypographyUtility::GoogleFontRequirements();
-	TypographyUtility::LocalFontRequirements();
+	WebfontsUtility::GoogleFontRequirements();
+	WebfontsUtility::LocalFontRequirements();
 	
 	//Use this for debugging
-	//echo TypographyUtility::google_font_collection_link();
-	//echo TypographyUtility::debug();
+	//echo WebfontsUtility::google_font_collection_link();
+	//echo WebfontsUtility::debug();
 
 ## Future ideas
 
