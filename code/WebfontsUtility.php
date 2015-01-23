@@ -174,7 +174,7 @@ class WebfontsUtility extends Object {
 		$theme = Config::inst()->get('SSViewer', 'theme');
 		//we're calling fonts without styles - as the comma in the url messes up with
 		//the tinyMCE config
-		$googleFonts = TypographyUtility::GoogleFontRequirements_string(true, false);
+		$googleFonts = WebfontsUtility::GoogleFontRequirements_string(true, false);
 		
 		HtmlEditorConfig::get('cms')->setOption(
 			'content_css', 
@@ -214,7 +214,7 @@ class WebfontsUtility extends Object {
 	 * Setting all html editor configs
 	 */
 	public static function set_html_editor_configs(){
-		TypographyUtility::set_html_editor_config();
+		WebfontsUtility::set_html_editor_config();
 		//TypographyUtility::set_basic_html_editor_config();
 		
 		//we're also using a module to accomplish this (silverstripe-customhtmleditorfield)
@@ -266,13 +266,13 @@ class WebfontsUtility_Controller extends Controller {
 	public function localfonts() {
 		header("Content-Type: text/css");
 		//also see http://stackoverflow.com/questions/5413107/headercontent-type-text-css-is-working-in-ff-cr-but-in-ie9-it-shows-up-as
-		echo TypographyUtility::LocalFontRequirements(true);
+		echo WebfontsUtility::LocalFontRequirements(true);
 		exit;
 	}
 	
 	
 	function google_fontcollection() {
-		$link = TypographyUtility::google_font_collection_link();
+		$link = WebfontsUtility::google_font_collection_link();
 		header("Location: $link");
 		exit;
 	}
