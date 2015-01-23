@@ -164,8 +164,8 @@ class WebfontsUtility extends Object {
 		HtmlEditorConfig::get('cms')->setOption(
 			'content_css', 
 			//TypographyUtility::GoogleFontRequirements_string() . ',' . HtmlEditorConfig::get('cms')->getOption('content_css')
-			 "$googleFonts, /webfonts/localfonts.css, themes/$theme/css/editor.css" 
-		);		
+			 "$googleFonts, /webfonts/localfonts.css" 
+		);
 		
 	}
 	
