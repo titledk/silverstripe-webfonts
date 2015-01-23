@@ -1,13 +1,13 @@
 <?php
 /**
- * Helper class for working with typography,
+ * Helper class for working with web fonts,
  * including web fonts, etc.
  * Private statics defined here should be set from config.yml
  * 
  * @author Anselm Christophersen <ac@title.dk>
- * @copyright Copyright (c) 2014, Title Web Solutions
+ * @copyright Copyright (c) 2015, Title Web Solutions
  */
-class TypographyUtility extends Object {
+class WebfontsUtility extends Object {
 	
 	//Google fonts to be used in the project
 	private static $google_fonts = array();
@@ -15,10 +15,6 @@ class TypographyUtility extends Object {
 	private static $local_fonts = array();
 	private static $local_fonts_location = 'fonts';
 	
-	
-	public static function debug(){
-		Debug::dump(self::config()->google_fonts);
-	}
 	
 	
 	/**
@@ -237,13 +233,13 @@ class TypographyUtility extends Object {
 /**
  * Extension for {@see LeftAndMainExtension} for typography rules
  */
-class TypographyUtility_LeftAndMainExtension extends LeftAndMainExtension {
+class WebfontsUtility_LeftAndMainExtension extends LeftAndMainExtension {
 	
 	public function init() {
 		//Even though tiymce is laoding the fonts through configruation set in {TypographyUtility::set_html_editor_config()},
 		//they also need to be loaded in the CMS to show proper fonts in the dropdowns - as tinyMCE is loaded in an iframe
-		TypographyUtility::GoogleFontRequirements();
-		TypographyUtility::LocalFontRequirements();
+		WebfontsUtility::GoogleFontRequirements();
+		WebfontsUtility::LocalFontRequirements();
 
 	}
 }
@@ -254,7 +250,7 @@ class TypographyUtility_LeftAndMainExtension extends LeftAndMainExtension {
  * I'm not so sure this is needed anymore - as it's taken care of 
  * via 
  */
-class TypographyUtility_Controller extends Controller {
+class WebfontsUtility_Controller extends Controller {
 
 	private static $allowed_actions = array(
 		'google_fontcollection',
