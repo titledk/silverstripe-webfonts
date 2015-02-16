@@ -14,7 +14,18 @@ class WebfontsUtility extends Object {
 	//Local fonts to be used in the project
 	private static $local_fonts = array();
 	private static $local_fonts_location = 'fonts';
-	
+
+
+	/**
+	 * Font requirements
+	 */
+	public static function Requirements() {
+		self::GoogleFontRequirements();
+		self::LocalFontRequirements();
+
+		//refreshing settings cache
+		self::write_settings_cache();
+	}
 	
 	
 	/**
@@ -105,7 +116,99 @@ class WebfontsUtility extends Object {
 			Requirements::customCSS($css);
 		}
 	}
+
+	/**
+	 * A list of all available fonts
+	 */
+	public static function all_fonts($labels = false) {
+		$fonts = array();
+		
+		//adding Google fonts
+		foreach(self::config()->google_fonts as $font => $settings) {
+			$fonts[] = $font;
+		}
+		//adding local fonts
+		foreach(self::config()->local_fonts as $font => $settings) {
+			$fonts[] = $font;
+		}
+		
+		asort($fonts);
+		
+		if ($labels) {
+			return self::labeled_fonts($fonts);
+		} else {
+			return $fonts;
+		}
+		
+	}
+
+	/**
+	 * A list of all enabled fonts
+	 * If no enabled settings have been set, this returns all fonts
+	 */
+	public static function enabled_fonts($labels = false) {
+		
+		$enabledFonts = null;
+		//$sc = SiteConfig::current_site_config();
+		//if ($sc && $sc->exists()) {
+		//	//$enabledFonts = $sc->EnabledFonts;
+		//}
+		
+		//we can't access SiteConfig at this stage of the initialization,
+		//and thus we load it through the cache instead (it's set on WebfontsUtility::Requirements())
+		
+		
+		$cachekey = self::settings_cache_key();
+		$cache = SS_Cache::factory($cachekey);
+		if ($result = $cache->load($cachekey)) {
+			$enabledFonts = unserialize($result);
+		}
+		
+		if ($enabledFonts && strlen($enabledFonts)) {
+			//if enabled fonts are set, only return enabled fonts
+			$fonts = explode(',', $enabledFonts);
+
+			if ($labels) {
+				return self::labeled_fonts($fonts);
+			} else {
+				return $fonts;
+			}
+			
+			
+		} else {
+			//if no enabled fonts have been set, return all
+			return self::all_fonts($labels);
+		}
+	}
 	
+	private static function labeled_fonts($fonts) {
+		$labeledFonts = array();
+
+		foreach ($fonts as $font) {
+			$fontNice = str_replace('+', ' ', $font);
+			$labeledFonts[$font] = $fontNice;
+		}
+		return $labeledFonts;
+	}
+
+
+	/**
+	 * Settings cache key
+	 * For now only used for enabled fonts, but could be used for other things
+	 */
+	public static function settings_cache_key() {
+		$cachekey = "WebfontsUtilityEnabledFonts";
+
+		if (isset($_SERVER['SERVER_NAME'])) {
+			$server = $_SERVER['SERVER_NAME'];
+			$server = preg_replace('/[^A-Za-z0-9]/', '', $server);
+			
+			$cachekey = $cachekey . "_" . $server;
+			
+			//Debug::dump($cachekey);
+		}
+		return $cachekey;
+	}
 	
 	
 	/**
@@ -136,16 +239,12 @@ class WebfontsUtility extends Object {
 		//notes: http://maxfoundry.com/blog/how-to-add-google-web-fonts-to-your-tinymce-editor-in-wordpress/
 		//http://stackoverflow.com/questions/12247339/how-to-enable-font-family-and-color-options-in-tinymce-editor
 		$dropdownList = '';
-		//google fonts
-		foreach(self::config()->google_fonts as $font => $settings) {
+		
+		foreach (self::enabled_fonts() as $font) {
 			$fontNice = str_replace('+', ' ', $font);
 			$dropdownList .= "$fontNice=$fontNice;";
 		}
-		//local fonts
-		foreach(self::config()->local_fonts as $font => $settings) {
-			$fontNice = str_replace('+', ' ', $font);
-			$dropdownList .= "$fontNice=$fontNice;";
-		}
+
 		//there seems to be an issue with the last not being able to be selected
 		//thus, I'm just adding a "default" there
 		$dropdownList .= "Default=;";
@@ -169,6 +268,50 @@ class WebfontsUtility extends Object {
 		
 	}
 	
+	
+	public static function write_settings_cache() {
+		
+		//Caching enabled fonts - they need to be accessible at a stage when SiteConfig is not loaded yet
+		
+		$cachekey = self::settings_cache_key();
+		$cache = SS_Cache::factory($cachekey);
+		if ($result = $cache->load($cachekey)) {
+			$cache->remove($cachekey);
+			
+		}
+		$sc = SiteConfig::current_site_config();
+		$cache->save(serialize($sc->EnabledFonts));
+	}
+
+}
+
+
+/**
+ * WebfontsUtility_SiteConfigExtension
+ * 
+ * NOTE that in order to use this, you also need to have
+ * https://github.com/silverstripe-australia/silverstripe-multivaluefield installed
+ * 
+ */
+class WebfontsUtility_SiteConfigExtension extends DataExtension {
+
+	static $db = array(
+		'EnabledFonts' => 'Text',
+	);
+
+	function updateCMSFields(FieldList $fields) {
+		
+		
+		//Setting for restricting available fonts
+		//This would mostly be necessary when working with multiple sites
+		$fontsField = new CheckboxSetField('EnabledFonts', 'Available Fonts', WebfontsUtility::all_fonts(true));
+		$fontsField->setRightTitle('If none are selected, all will be available');
+		$fields->addFieldToTab('Root.Main', $fontsField);
+	}
+	
+	function onAfterWrite() {
+		WebfontsUtility::write_settings_cache();
+	}
 
 }
 
@@ -181,9 +324,7 @@ class WebfontsUtility_LeftAndMainExtension extends LeftAndMainExtension {
 	public function init() {
 		//Even though tiymce is laoding the fonts through configuration set in {WebfontsUtility::set_html_editor_config()},
 		//they also need to be loaded in the CMS to show proper fonts in the dropdowns - as tinyMCE is loaded in an iframe
-		WebfontsUtility::GoogleFontRequirements();
-		WebfontsUtility::LocalFontRequirements();
-
+		WebfontsUtility::Requirements();
 	}
 }
 
@@ -204,12 +345,7 @@ class WebfontsUtility_Controller extends Controller {
 		'localfonts'
 	);	
 	
-	
-	
-	public function index(){
-		//echo 'sdfdsf';
-	}
-	
+
 	public function localfonts() {
 		header("Content-Type: text/css");
 		//also see http://stackoverflow.com/questions/5413107/headercontent-type-text-css-is-working-in-ff-cr-but-in-ie9-it-shows-up-as

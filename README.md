@@ -9,6 +9,9 @@ and they'll automatically be added to site and editor.
 
 _By default the module expects your fonts to be inside of a `fonts` directory in the web root_
 
+    SiteConfig:
+      extensions:
+        - WebfontsUtility_SiteConfigExtension
     LeftAndMain:
       extensions:
        #only needed when needing this in the backend
@@ -47,8 +50,7 @@ _By default the module expects your fonts to be inside of a `fonts` directory in
 
 The requirements can be loaded inside of your `init` method like this:
 
-	WebfontsUtility::GoogleFontRequirements();
-	WebfontsUtility::LocalFontRequirements();
+	WebfontsUtility::Requirements();
 	
 	//Use this for debugging
 	//echo WebfontsUtility::google_font_collection_link();
