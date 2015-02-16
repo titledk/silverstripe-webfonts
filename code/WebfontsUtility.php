@@ -34,13 +34,17 @@ class WebfontsUtility extends Object {
 	public static function GoogleFontRequirements_string($addLink = true, $addStyles = true){
 		$link = 'http://fonts.googleapis.com/css?family=';
 		
+		$enabled_fonts = self::enabled_fonts();
+		
 		$fontsStr = '';
 		foreach (self::config()->google_fonts as $font => $settings) {
-			if ($addStyles && isset($settings['styles'])) {
-				$styles = $settings['styles'];
-				$fontsStr .= "$font:$styles|";
-			} else {
-				$fontsStr .= "$font|";
+			if (in_array($font, $enabled_fonts)) {
+				if ($addStyles && isset($settings['styles'])) {
+					$styles = $settings['styles'];
+					$fontsStr .= "$font:$styles|";
+				} else {
+					$fontsStr .= "$font|";
+				}
 			}
 		}
 		$fontsStr = rtrim($fontsStr, '|');
@@ -51,7 +55,12 @@ class WebfontsUtility extends Object {
 			$fontsStr = $link . $fontsStr;
 		}
 		
-		return $fontsStr;
+		if ($fontsStr == $link) {
+			return false;
+		} else {
+			return $fontsStr;
+		}
+		
 	}
 
 	/**
@@ -59,7 +68,9 @@ class WebfontsUtility extends Object {
 	 */
 	public static function GoogleFontRequirements(){
 		$str = self::GoogleFontRequirements_string();
-		Requirements::css($str);
+		if ($str) {
+			Requirements::css($str);
+		}
 	}
 
 	public static function google_font_collection_link(){
@@ -83,31 +94,37 @@ class WebfontsUtility extends Object {
 	 */
 	public static function LocalFontRequirements($returnString = false){
 
+		$enabled_fonts = self::enabled_fonts();
 		$fontsDir = self::config()->local_fonts_location;
 		
 		$css = '';
 		foreach (self::config()->local_fonts as $font => $settings) {
-			$styles = explode(",", $settings['styles']);
-			$directory = $settings['directory'];
-			foreach ($styles as $style) {
-				$styleArr = $settings[$style];
-				$filepattern = $styleArr['filepattern'];
-				$cssStyle = $styleArr['style'];
-				$dir = "/$fontsDir/$directory";
+
+			if (in_array($font, $enabled_fonts)) {
 				
-				
-				$css .= "			
-					@font-face {
-						font-family: '$font';
-						src: url('$dir/$filepattern.eot');
-						src: url('$dir/$filepattern.eot?#iefix') format('embedded-opentype'),
-							 url('$dir/$filepattern.woff') format('woff'),
-							 url('$dir/$filepattern.ttf') format('truetype'),
-							 url('$dir/$filepattern.svg#$font') format('svg');
-						$cssStyle
-					}
-				";
+				$styles = explode(",", $settings['styles']);
+				$directory = $settings['directory'];
+				foreach ($styles as $style) {
+					$styleArr = $settings[$style];
+					$filepattern = $styleArr['filepattern'];
+					$cssStyle = $styleArr['style'];
+					$dir = "/$fontsDir/$directory";
+					
+					
+					$css .= "			
+						@font-face {
+							font-family: '$font';
+							src: url('$dir/$filepattern.eot');
+							src: url('$dir/$filepattern.eot?#iefix') format('embedded-opentype'),
+								 url('$dir/$filepattern.woff') format('woff'),
+								 url('$dir/$filepattern.ttf') format('truetype'),
+								 url('$dir/$filepattern.svg#$font') format('svg');
+							$cssStyle
+						}
+					";
+				}
 			}
+			
 		}
 		
 		if ($returnString) {
@@ -305,7 +322,7 @@ class WebfontsUtility_SiteConfigExtension extends DataExtension {
 		//Setting for restricting available fonts
 		//This would mostly be necessary when working with multiple sites
 		$fontsField = new CheckboxSetField('EnabledFonts', 'Available Fonts', WebfontsUtility::all_fonts(true));
-		$fontsField->setRightTitle('If none are selected, all will be available');
+		//$fontsField->setRightTitle('If none are selected, all will be available');
 		$fields->addFieldToTab('Root.Main', $fontsField);
 	}
 	
