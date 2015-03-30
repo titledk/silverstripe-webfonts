@@ -139,6 +139,11 @@ class WebfontsUtility extends Object {
 	 */
 	public static function all_fonts($labels = false) {
 		$fonts = array();
+
+		//adding Default fonts
+		foreach(self::config()->default_fonts as $font => $settings) {
+			$fonts[] = $font;
+		}
 		
 		//adding Google fonts
 		foreach(self::config()->google_fonts as $font => $settings) {
