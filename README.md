@@ -1,6 +1,6 @@
 # SilverStripe Webfonts
 
-Utility/helper for working with web fonts.    
+Utility/helper for working with web fonts.
 With this module you can easily add local and google fonts via your yaml-configuration,
 and they'll automatically be added to site and editor.
 
@@ -51,7 +51,7 @@ _By default the module expects your fonts to be inside of a `fonts` directory in
 The requirements can be loaded inside of your `init` method like this:
 
 	WebfontsUtility::Requirements();
-	
+
 	//Use this for debugging
 	//echo WebfontsUtility::google_font_collection_link();
 	//echo WebfontsUtility::debug();
