@@ -3,12 +3,12 @@
  * Helper class for working with web fonts,
  * including web fonts, etc.
  * Private statics defined here should be set from config.yml
- * 
+ *
  * @author Anselm Christophersen <ac@title.dk>
  * @copyright Copyright (c) 2015, Title Web Solutions
  */
 class WebfontsUtility extends Object {
-	
+
 	//Google fonts to be used in the project
 	private static $google_fonts = array();
 	//Local fonts to be used in the project
@@ -26,16 +26,16 @@ class WebfontsUtility extends Object {
 		//refreshing settings cache
 		self::write_settings_cache();
 	}
-	
-	
+
+
 	/**
 	 * Creating of the font requirements string based on configured fonts
 	 */
 	public static function GoogleFontRequirements_string($addLink = true, $addStyles = true){
 		$link = 'http://fonts.googleapis.com/css?family=';
-		
+
 		$enabled_fonts = self::enabled_fonts();
-		
+
 		$fontsStr = '';
 		foreach (self::config()->google_fonts as $font => $settings) {
 			if (in_array($font, $enabled_fonts)) {
@@ -48,19 +48,19 @@ class WebfontsUtility extends Object {
 			}
 		}
 		$fontsStr = rtrim($fontsStr, '|');
-		
-		
+
+
 		//$fontStr = implode('|', self::config()->google_fonts);
 		if ($addLink) {
 			$fontsStr = $link . $fontsStr;
 		}
-		
+
 		if ($fontsStr == $link) {
 			return false;
 		} else {
 			return $fontsStr;
 		}
-		
+
 	}
 
 	/**
@@ -74,34 +74,34 @@ class WebfontsUtility extends Object {
 	}
 
 	public static function google_font_collection_link(){
-		//http://www.google.com/fonts#UsePlace:use/Collection:Rambla|Dosis|Noto+Serif|Exo|Merriweather|Merriweather+Sans|Gabriela|Titillium+Web		
+		//http://www.google.com/fonts#UsePlace:use/Collection:Rambla|Dosis|Noto+Serif|Exo|Merriweather|Merriweather+Sans|Gabriela|Titillium+Web
 		$link = 'http://www.google.com/fonts#UsePlace:use/Collection:';
 		$fontStr = self::GoogleFontRequirements_string(false);
-		
+
 		$str = $link . $fontStr;
 		return $str;
 	}
 
 	/**
 	 * Local Font Requirements
-	 * 
+	 *
 	 * TODO:
 	 * the filetypes setting in the config is not
 	 * being used at the moment, and thus when additional (or fewer file types)
-	 * are present, this won't be reflected (e.g. don't we add woff2 file type here) 
-	 * 
+	 * are present, this won't be reflected (e.g. don't we add woff2 file type here)
+	 *
 	 * @param bool $returnString
 	 */
 	public static function LocalFontRequirements($returnString = false){
 
 		$enabled_fonts = self::enabled_fonts();
 		$fontsDir = self::config()->local_fonts_location;
-		
+
 		$css = '';
 		foreach (self::config()->local_fonts as $font => $settings) {
 
 			if (in_array($font, $enabled_fonts)) {
-				
+
 				$styles = explode(",", $settings['styles']);
 				$directory = $settings['directory'];
 				foreach ($styles as $style) {
@@ -109,9 +109,9 @@ class WebfontsUtility extends Object {
 					$filepattern = $styleArr['filepattern'];
 					$cssStyle = $styleArr['style'];
 					$dir = "/$fontsDir/$directory";
-					
-					
-					$css .= "			
+
+
+					$css .= "
 						@font-face {
 							font-family: '$font';
 							src: url('$dir/$filepattern.eot');
@@ -124,9 +124,9 @@ class WebfontsUtility extends Object {
 					";
 				}
 			}
-			
+
 		}
-		
+
 		if ($returnString) {
 			return $css;
 		} else {
@@ -144,7 +144,7 @@ class WebfontsUtility extends Object {
 		foreach(self::config()->default_fonts as $font => $settings) {
 			$fonts[] = $font;
 		}
-		
+
 		//adding Google fonts
 		foreach(self::config()->google_fonts as $font => $settings) {
 			$fonts[] = $font;
@@ -153,15 +153,15 @@ class WebfontsUtility extends Object {
 		foreach(self::config()->local_fonts as $font => $settings) {
 			$fonts[] = $font;
 		}
-		
+
 		asort($fonts);
-		
+
 		if ($labels) {
 			return self::labeled_fonts($fonts);
 		} else {
 			return $fonts;
 		}
-		
+
 	}
 
 	/**
@@ -169,23 +169,23 @@ class WebfontsUtility extends Object {
 	 * If no enabled settings have been set, this returns all fonts
 	 */
 	public static function enabled_fonts($labels = false) {
-		
+
 		$enabledFonts = null;
 		//$sc = SiteConfig::current_site_config();
 		//if ($sc && $sc->exists()) {
 		//	//$enabledFonts = $sc->EnabledFonts;
 		//}
-		
+
 		//we can't access SiteConfig at this stage of the initialization,
 		//and thus we load it through the cache instead (it's set on WebfontsUtility::Requirements())
-		
-		
+
+
 		$cachekey = self::settings_cache_key();
 		$cache = SS_Cache::factory($cachekey);
 		if ($result = $cache->load($cachekey)) {
 			$enabledFonts = unserialize($result);
 		}
-		
+
 		if ($enabledFonts && strlen($enabledFonts)) {
 			//if enabled fonts are set, only return enabled fonts
 			$fonts = explode(',', $enabledFonts);
@@ -195,14 +195,14 @@ class WebfontsUtility extends Object {
 			} else {
 				return $fonts;
 			}
-			
-			
+
+
 		} else {
 			//if no enabled fonts have been set, return all
 			return self::all_fonts($labels);
 		}
 	}
-	
+
 	private static function labeled_fonts($fonts) {
 		$labeledFonts = array();
 
@@ -224,44 +224,44 @@ class WebfontsUtility extends Object {
 		if (isset($_SERVER['SERVER_NAME'])) {
 			$server = $_SERVER['SERVER_NAME'];
 			$server = preg_replace('/[^A-Za-z0-9]/', '', $server);
-			
+
 			$cachekey = $cachekey . "_" . $server;
-			
+
 			//Debug::dump($cachekey);
 		}
 		return $cachekey;
 	}
-	
-	
+
+
 	/**
 	 * Setting font and font size dropdown
 	 * Font dropdown is populated with configured fonts
 	 * This should be called from _config.php
 	 * Unfortunately this means that it's called on all page requests - TODO: this could be alterated with a proper if statement
-	 * 
+	 *
 	 * Resources
 	 * https://stojg.se/blog/2013-03-29-customize-tinymce-for-silverstripe-cms
 	 * http://www.balbuss.com/some-simple-tinymce-editor-settings-in-silverstripe/
-	 * 
+	 *
 	 * Gists
 	 * http://www.sspaste.com/paste/show/513dfaf026629
 	 * https://gist.github.com/colymba/6121825
 	 * https://gist.github.com/ryanwachtl/6251297
-	 * 
+	 *
 	 * TinyMCE Configuration
 	 * http://www.tinymce.com/wiki.php/configuration
-	 * 
+	 *
 	 */
 	public static function set_html_editor_config() {
-		
+
 		//HtmlEditorConfig::get("cms")->setButtonsForLine(3, "fontselect,fontsizeselect");
 		HtmlEditorConfig::get("cms")->addButtonsToLine(3, "|,fontselect,fontsizeselect");
-		
+
 		//Font dropdown
 		//notes: http://maxfoundry.com/blog/how-to-add-google-web-fonts-to-your-tinymce-editor-in-wordpress/
 		//http://stackoverflow.com/questions/12247339/how-to-enable-font-family-and-color-options-in-tinymce-editor
 		$dropdownList = '';
-		
+
 		foreach (self::enabled_fonts() as $font) {
 			$fontNice = str_replace('+', ' ', $font);
 			$dropdownList .= "$fontNice=$fontNice;";
@@ -270,9 +270,9 @@ class WebfontsUtility extends Object {
 		//there seems to be an issue with the last not being able to be selected
 		//thus, I'm just adding a "default" there
 		$dropdownList .= "Default=;";
-		
+
 		HtmlEditorConfig::get('cms')->setOption(
-			'theme_advanced_fonts', 
+			'theme_advanced_fonts',
 			$dropdownList
 		);
 
@@ -281,25 +281,25 @@ class WebfontsUtility extends Object {
 		//we're calling fonts without styles - as the comma in the url messes up with
 		//the tinyMCE config
 		$googleFonts = WebfontsUtility::GoogleFontRequirements_string(true, false);
-		
+
 		HtmlEditorConfig::get('cms')->setOption(
-			'content_css', 
+			'content_css',
 			//TypographyUtility::GoogleFontRequirements_string() . ',' . HtmlEditorConfig::get('cms')->getOption('content_css')
-			 "$googleFonts, /webfonts/localfonts.css" 
+			 "$googleFonts, /webfonts/localfonts.css"
 		);
-		
+
 	}
-	
-	
+
+
 	public static function write_settings_cache() {
-		
+
 		//Caching enabled fonts - they need to be accessible at a stage when SiteConfig is not loaded yet
-		
+
 		$cachekey = self::settings_cache_key();
 		$cache = SS_Cache::factory($cachekey);
 		if ($result = $cache->load($cachekey)) {
 			$cache->remove($cachekey);
-			
+
 		}
 		$sc = SiteConfig::current_site_config();
 		$cache->save(serialize($sc->EnabledFonts));
@@ -310,10 +310,10 @@ class WebfontsUtility extends Object {
 
 /**
  * WebfontsUtility_SiteConfigExtension
- * 
+ *
  * NOTE that in order to use this, you also need to have
  * https://github.com/silverstripe-australia/silverstripe-multivaluefield installed
- * 
+ *
  */
 class WebfontsUtility_SiteConfigExtension extends DataExtension {
 
@@ -322,15 +322,15 @@ class WebfontsUtility_SiteConfigExtension extends DataExtension {
 	);
 
 	function updateCMSFields(FieldList $fields) {
-		
-		
+
+
 		//Setting for restricting available fonts
 		//This would mostly be necessary when working with multiple sites
 		$fontsField = new CheckboxSetField('EnabledFonts', 'Available Fonts', WebfontsUtility::all_fonts(true));
 		//$fontsField->setRightTitle('If none are selected, all will be available');
 		$fields->addFieldToTab('Root.Main', $fontsField);
 	}
-	
+
 	function onAfterWrite() {
 		WebfontsUtility::write_settings_cache();
 	}
@@ -342,7 +342,7 @@ class WebfontsUtility_SiteConfigExtension extends DataExtension {
  * Extension for {@see LeftAndMainExtension} for typography rules
  */
 class WebfontsUtility_LeftAndMainExtension extends LeftAndMainExtension {
-	
+
 	public function init() {
 		//Even though tiymce is laoding the fonts through configuration set in {WebfontsUtility::set_html_editor_config()},
 		//they also need to be loaded in the CMS to show proper fonts in the dropdowns - as tinyMCE is loaded in an iframe
@@ -352,9 +352,9 @@ class WebfontsUtility_LeftAndMainExtension extends LeftAndMainExtension {
 
 
 /**
- * These urls are available under webfonts, 
+ * These urls are available under webfonts,
  * e.g. /webfonts/localfonts.css
- * 
+ *
  * TODO
  * Cache these under assets instead, this way there will be no more need
  * to have all fonts inline in the frontend, and they could even be built through the requirements
@@ -365,8 +365,8 @@ class WebfontsUtility_Controller extends Controller {
 	private static $allowed_actions = array(
 		'google_fontcollection',
 		'localfonts'
-	);	
-	
+	);
+
 
 	public function localfonts() {
 		header("Content-Type: text/css");
@@ -374,13 +374,13 @@ class WebfontsUtility_Controller extends Controller {
 		echo WebfontsUtility::LocalFontRequirements(true);
 		exit;
 	}
-	
-	
+
+
 	function google_fontcollection() {
 		$link = WebfontsUtility::google_font_collection_link();
 		header("Location: $link");
 		exit;
 	}
-	
-	
+
+
 }
